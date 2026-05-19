@@ -1,0 +1,25 @@
+{
+    "name": "Node.js",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
+
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "streetsidesoftware.code-spell-checker"
+            ]
+        }
+    },
+
+    "portsAttributes": {
+        "3000": {
+            "protocol": "http"
+        }
+    },
+
+    "forwardPorts": [3000],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "npm install"
+}
