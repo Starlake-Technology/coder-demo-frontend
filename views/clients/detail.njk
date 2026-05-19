@@ -1,0 +1,82 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+
+  <h1 class="govuk-heading-xl">{{ client.firstName }} {{ client.lastName }}</h1>
+
+  {{ govukSummaryList({
+    rows: [
+      {
+        key: { text: "First name" },
+        value: { text: client.firstName }
+      },
+      {
+        key: { text: "Last name" },
+        value: { text: client.lastName }
+      },
+      {
+        key: { text: "Email address" },
+        value: { html: '<a class="govuk-link" href="mailto:' + client.email + '">' + client.email + '</a>' }
+      },
+      {
+        key: { text: "Phone number" },
+        value: { text: client.phone if client.phone else "Not provided" }
+      },
+      {
+        key: { text: "Address" },
+        value: { text: client.address if client.address else "Not provided" }
+      }
+    ]
+  }) }}
+
+  <h2 class="govuk-heading-l govuk-!-margin-top-6">Cases</h2>
+
+  {% if cases | length === 0 %}
+    <p class="govuk-body">This client has no cases.</p>
+  {% else %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Case number</th>
+          <th scope="col" class="govuk-table__header">Title</th>
+          <th scope="col" class="govuk-table__header">Type</th>
+          <th scope="col" class="govuk-table__header">Status</th>
+          <th scope="col" class="govuk-table__header">Opened</th>
+          <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for c in cases %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/cases/{{ c.id }}">{{ c.caseNumber }}</a>
+          </td>
+          <td class="govuk-table__cell">{{ c.title }}</td>
+          <td class="govuk-table__cell">{{ c.caseType | formatCaseType }}</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag {{ c.status | statusTagClass }}">{{ c.status | formatStatus }}</strong>
+          </td>
+          <td class="govuk-table__cell">{{ c.openedDate | formatDate }}</td>
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/cases/{{ c.id }}">View<span class="govuk-visually-hidden"> case {{ c.caseNumber }}</span></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  <div class="govuk-!-margin-top-4">
+    {{ govukButton({
+      text: "Add a case for this client",
+      href: "/cases/new",
+      classes: "govuk-button--secondary"
+    }) }}
+  </div>
+
+  <p class="govuk-body">
+    <a class="govuk-link" href="/clients">Back to all clients</a>
+  </p>
+{% endblock %}

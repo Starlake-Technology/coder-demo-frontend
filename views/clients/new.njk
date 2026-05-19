@@ -1,0 +1,96 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+  {% from "govuk/components/input/macro.njk" import govukInput %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+
+  {% if errors | length > 0 %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errors
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-xl">Add new client</h1>
+
+  <form method="post" action="/clients" novalidate>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        {{ govukInput({
+          label: {
+            text: "First name",
+            classes: "govuk-label--m"
+          },
+          id: "firstName",
+          name: "firstName",
+          value: formData.firstName,
+          autocomplete: "given-name",
+          errorMessage: { text: "Enter a first name" } if errors | selectattr("href", "equalto", "#firstName") | list | length > 0
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Last name",
+            classes: "govuk-label--m"
+          },
+          id: "lastName",
+          name: "lastName",
+          value: formData.lastName,
+          autocomplete: "family-name",
+          errorMessage: { text: "Enter a last name" } if errors | selectattr("href", "equalto", "#lastName") | list | length > 0
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Email address",
+            classes: "govuk-label--m"
+          },
+          id: "email",
+          name: "email",
+          type: "email",
+          value: formData.email,
+          autocomplete: "email",
+          spellcheck: false,
+          errorMessage: { text: errors | selectattr("href", "equalto", "#email") | list | first | default({}) | attribute("text") } if errors | selectattr("href", "equalto", "#email") | list | length > 0
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Phone number",
+            classes: "govuk-label--m"
+          },
+          hint: { text: "Optional" },
+          id: "phone",
+          name: "phone",
+          type: "tel",
+          value: formData.phone,
+          autocomplete: "tel",
+          classes: "govuk-input--width-20"
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Address",
+            classes: "govuk-label--m"
+          },
+          hint: { text: "Optional" },
+          id: "address",
+          name: "address",
+          value: formData.address,
+          autocomplete: "street-address"
+        }) }}
+
+        {{ govukButton({
+          text: "Add client"
+        }) }}
+
+        <p class="govuk-body govuk-!-margin-left-3" style="display: inline;">
+          <a class="govuk-link" href="/clients">Cancel</a>
+        </p>
+
+      </div>
+    </div>
+  </form>
+{% endblock %}

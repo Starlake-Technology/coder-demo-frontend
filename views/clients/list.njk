@@ -1,0 +1,82 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+  {% from "govuk/components/input/macro.njk" import govukInput %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Clients</h1>
+    </div>
+    <div class="govuk-grid-column-one-third govuk-!-text-align-right">
+      {{ govukButton({
+        text: "Add new client",
+        href: "/clients/new",
+        classes: "govuk-!-margin-bottom-0"
+      }) }}
+    </div>
+  </div>
+
+  <form method="get" action="/clients" class="govuk-!-margin-bottom-6">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-half">
+        {{ govukInput({
+          label: { text: "Search by last name" },
+          id: "lastName",
+          name: "lastName",
+          value: searchLastName,
+          classes: "govuk-input--width-20"
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-quarter" style="padding-top: 36px;">
+        {{ govukButton({
+          text: "Search",
+          classes: "govuk-button--secondary"
+        }) }}
+        {% if searchLastName %}
+          <a class="govuk-link govuk-!-margin-left-3" href="/clients">Clear</a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+
+  {% if clients | length === 0 %}
+    <p class="govuk-body">No clients found{% if searchLastName %} matching "{{ searchLastName }}"{% endif %}.</p>
+  {% else %}
+    <p class="govuk-body govuk-!-color-secondary">
+      Showing {{ clients | length }} client{{ "s" if clients | length !== 1 }}{% if searchLastName %} matching "{{ searchLastName }}"{% endif %}
+    </p>
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Name</th>
+          <th scope="col" class="govuk-table__header">Email</th>
+          <th scope="col" class="govuk-table__header">Phone</th>
+          <th scope="col" class="govuk-table__header govuk-table__header--numeric">Active cases</th>
+          <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for client in clients %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/clients/{{ client.id }}">{{ client.firstName }} {{ client.lastName }}</a>
+          </td>
+          <td class="govuk-table__cell">{{ client.email }}</td>
+          <td class="govuk-table__cell">{{ client.phone or "—" }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">
+            {% if client.activeCaseCount > 0 %}
+              <strong class="govuk-tag govuk-tag--blue">{{ client.activeCaseCount }}</strong>
+            {% else %}
+              0
+            {% endif %}
+          </td>
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/clients/{{ client.id }}">View<span class="govuk-visually-hidden"> {{ client.firstName }} {{ client.lastName }}</span></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}

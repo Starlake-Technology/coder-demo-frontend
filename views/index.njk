@@ -1,0 +1,112 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  <h1 class="govuk-heading-xl">Dashboard</h1>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+          <h2 class="govuk-summary-card__title">Clients</h2>
+          <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link" href="/clients">View all</a>
+            </li>
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link" href="/clients/new">Add new</a>
+            </li>
+          </ul>
+        </div>
+        <div class="govuk-summary-card__content">
+          <p class="govuk-body govuk-!-font-size-48 govuk-!-font-weight-bold govuk-!-margin-bottom-0">{{ stats.totalClients }}</p>
+          <p class="govuk-body-s govuk-!-color-secondary">Total clients</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-one-half">
+      <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+          <h2 class="govuk-summary-card__title">Cases</h2>
+          <ul class="govuk-summary-card__actions">
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link" href="/cases">View all</a>
+            </li>
+            <li class="govuk-summary-card__action">
+              <a class="govuk-link" href="/cases/new">Add new</a>
+            </li>
+          </ul>
+        </div>
+        <div class="govuk-summary-card__content">
+          <p class="govuk-body govuk-!-font-size-48 govuk-!-font-weight-bold govuk-!-margin-bottom-0">{{ stats.totalCases }}</p>
+          <p class="govuk-body-s govuk-!-color-secondary">Total cases</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="govuk-grid-row govuk-!-margin-top-4">
+    <div class="govuk-grid-column-full">
+      <h2 class="govuk-heading-m">Cases by status</h2>
+      <ul class="govuk-list govuk-!-display-inline-block">
+        <li style="display: inline-block; margin-right: 16px; margin-bottom: 12px;">
+          <a class="govuk-link govuk-link--no-visited-state" href="/cases?status=OPEN">
+            <strong class="govuk-tag govuk-tag--green govuk-!-margin-right-1">{{ stats.openCases }}</strong> Open
+          </a>
+        </li>
+        <li style="display: inline-block; margin-right: 16px; margin-bottom: 12px;">
+          <a class="govuk-link govuk-link--no-visited-state" href="/cases?status=IN_PROGRESS">
+            <strong class="govuk-tag govuk-tag--blue govuk-!-margin-right-1">{{ stats.inProgressCases }}</strong> In progress
+          </a>
+        </li>
+        <li style="display: inline-block; margin-right: 16px; margin-bottom: 12px;">
+          <a class="govuk-link govuk-link--no-visited-state" href="/cases?status=CLOSED">
+            <strong class="govuk-tag govuk-tag--grey govuk-!-margin-right-1">{{ stats.closedCases }}</strong> Closed
+          </a>
+        </li>
+        <li style="display: inline-block; margin-right: 16px; margin-bottom: 12px;">
+          <a class="govuk-link govuk-link--no-visited-state" href="/cases?status=DISMISSED">
+            <strong class="govuk-tag govuk-tag--red govuk-!-margin-right-1">{{ stats.dismissedCases }}</strong> Dismissed
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  {% if recentCases | length > 0 %}
+  <div class="govuk-grid-row govuk-!-margin-top-4">
+    <div class="govuk-grid-column-full">
+      <h2 class="govuk-heading-m">Recent cases</h2>
+      <table class="govuk-table">
+        <thead class="govuk-table__head">
+          <tr class="govuk-table__row">
+            <th scope="col" class="govuk-table__header">Case number</th>
+            <th scope="col" class="govuk-table__header">Title</th>
+            <th scope="col" class="govuk-table__header">Type</th>
+            <th scope="col" class="govuk-table__header">Status</th>
+            <th scope="col" class="govuk-table__header">Client</th>
+          </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+          {% for case in recentCases %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+              <a class="govuk-link" href="/cases/{{ case.id }}">{{ case.caseNumber }}</a>
+            </td>
+            <td class="govuk-table__cell">{{ case.title }}</td>
+            <td class="govuk-table__cell">{{ case.caseType | formatCaseType }}</td>
+            <td class="govuk-table__cell">
+              <strong class="govuk-tag {{ case.status | statusTagClass }}">{{ case.status | formatStatus }}</strong>
+            </td>
+            <td class="govuk-table__cell">{{ case.clientName or "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="govuk-body">
+        <a class="govuk-link" href="/cases">View all cases</a>
+      </p>
+    </div>
+  </div>
+  {% endif %}
+{% endblock %}

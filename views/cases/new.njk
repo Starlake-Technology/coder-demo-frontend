@@ -1,0 +1,116 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+  {% from "govuk/components/input/macro.njk" import govukInput %}
+  {% from "govuk/components/select/macro.njk" import govukSelect %}
+  {% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+
+  {% if errors | length > 0 %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errors
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-xl">Add new case</h1>
+
+  <form method="post" action="/cases" novalidate>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+
+        {{ govukInput({
+          label: {
+            text: "Case number",
+            classes: "govuk-label--m"
+          },
+          hint: { text: "For example, CASE-2024-001" },
+          id: "caseNumber",
+          name: "caseNumber",
+          value: formData.caseNumber,
+          classes: "govuk-input--width-20",
+          errorMessage: { text: errors | selectattr("href", "equalto", "#caseNumber") | list | first | default({}) | attribute("text") } if errors | selectattr("href", "equalto", "#caseNumber") | list | length > 0
+        }) }}
+
+        {{ govukInput({
+          label: {
+            text: "Title",
+            classes: "govuk-label--m"
+          },
+          id: "title",
+          name: "title",
+          value: formData.title,
+          errorMessage: { text: "Enter a case title" } if errors | selectattr("href", "equalto", "#title") | list | length > 0
+        }) }}
+
+        {{ govukTextarea({
+          label: {
+            text: "Description",
+            classes: "govuk-label--m"
+          },
+          hint: { text: "Optional – provide additional details about the case" },
+          id: "description",
+          name: "description",
+          value: formData.description,
+          rows: 5
+        }) }}
+
+        {% set caseTypeItems = [{ value: "", text: "Select a case type" }] %}
+        {% for type in caseTypes %}
+          {% set caseTypeItems = (caseTypeItems.push({ value: type, text: type | formatCaseType, selected: formData.caseType === type }), caseTypeItems) %}
+        {% endfor %}
+
+        {{ govukSelect({
+          id: "caseType",
+          name: "caseType",
+          label: {
+            text: "Case type",
+            classes: "govuk-label--m"
+          },
+          items: [
+            { value: "", text: "Select a case type", selected: not formData.caseType },
+            { value: "CRIMINAL", text: "Criminal", selected: formData.caseType === "CRIMINAL" },
+            { value: "CIVIL", text: "Civil", selected: formData.caseType === "CIVIL" },
+            { value: "FAMILY", text: "Family", selected: formData.caseType === "FAMILY" },
+            { value: "CORPORATE", text: "Corporate", selected: formData.caseType === "CORPORATE" },
+            { value: "EMPLOYMENT", text: "Employment", selected: formData.caseType === "EMPLOYMENT" }
+          ],
+          errorMessage: { text: "Select a case type" } if errors | selectattr("href", "equalto", "#caseType") | list | length > 0
+        }) }}
+
+        {% if clients | length > 0 %}
+          {% set clientItems = [{ value: "", text: "No client assigned" }] %}
+          {% for client in clients %}
+            {% set clientItems = (clientItems.push({ value: client.id, text: client.firstName + " " + client.lastName, selected: formData.clientId == client.id }), clientItems) %}
+          {% endfor %}
+
+          {{ govukSelect({
+            id: "clientId",
+            name: "clientId",
+            label: {
+              text: "Assign to client",
+              classes: "govuk-label--m"
+            },
+            hint: { text: "Optional – link this case to an existing client" },
+            items: clientItems
+          }) }}
+        {% else %}
+          <p class="govuk-body">
+            No clients available.
+            <a class="govuk-link" href="/clients/new">Add a client first</a>.
+          </p>
+        {% endif %}
+
+        {{ govukButton({
+          text: "Add case"
+        }) }}
+
+        <p class="govuk-body govuk-!-margin-left-3" style="display: inline;">
+          <a class="govuk-link" href="/cases">Cancel</a>
+        </p>
+
+      </div>
+    </div>
+  </form>
+{% endblock %}

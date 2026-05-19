@@ -1,0 +1,70 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+  {% from "govuk/components/radios/macro.njk" import govukRadios %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+
+  {% if errors | length > 0 %}
+    {{ govukErrorSummary({
+      titleText: "There is a problem",
+      errorList: errors
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-xl">Update case status</h1>
+
+  <p class="govuk-body">
+    <strong>Case:</strong> {{ case.caseNumber }} – {{ case.title }}
+  </p>
+  <p class="govuk-body">
+    <strong>Current status:</strong>
+    <strong class="govuk-tag {{ case.status | statusTagClass }}">{{ case.status | formatStatus }}</strong>
+  </p>
+
+  <form method="post" action="/cases/{{ case.id }}/status" novalidate>
+    {{ govukRadios({
+      name: "status",
+      fieldset: {
+        legend: {
+          text: "Select new status",
+          classes: "govuk-fieldset__legend--m"
+        }
+      },
+      errorMessage: { text: "Select a status" } if errors | length > 0,
+      items: [
+        {
+          value: "OPEN",
+          text: "Open",
+          hint: { text: "Case is active and not yet assigned" },
+          checked: case.status === "OPEN"
+        },
+        {
+          value: "IN_PROGRESS",
+          text: "In progress",
+          hint: { text: "Case is being actively worked on" },
+          checked: case.status === "IN_PROGRESS"
+        },
+        {
+          value: "CLOSED",
+          text: "Closed",
+          hint: { text: "Case has been resolved. The closed date will be set to today." },
+          checked: case.status === "CLOSED"
+        },
+        {
+          value: "DISMISSED",
+          text: "Dismissed",
+          hint: { text: "Case has been dismissed. The closed date will be set to today." },
+          checked: case.status === "DISMISSED"
+        }
+      ]
+    }) }}
+
+    <div class="govuk-button-group">
+      {{ govukButton({
+        text: "Update status"
+      }) }}
+      <a class="govuk-link" href="/cases/{{ case.id }}">Cancel</a>
+    </div>
+  </form>
+{% endblock %}

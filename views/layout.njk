@@ -1,0 +1,55 @@
+{% extends "govuk/template.njk" %}
+
+{% block pageTitle %}{{ pageTitle }} – Legal Cases{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/govuk-frontend/govuk/govuk-frontend.min.css">
+{% endblock %}
+
+{% block header %}
+  {% from "govuk/components/header/macro.njk" import govukHeader %}
+  {{ govukHeader({
+    homepageUrl: "/",
+    serviceName: "Legal Cases",
+    serviceUrl: "/",
+    navigation: [
+      {
+        href: "/",
+        text: "Dashboard",
+        active: currentPage === "dashboard"
+      },
+      {
+        href: "/clients",
+        text: "Clients",
+        active: currentPage === "clients"
+      },
+      {
+        href: "/cases",
+        text: "Cases",
+        active: currentPage === "cases"
+      }
+    ]
+  }) }}
+{% endblock %}
+
+{% block beforeContent %}
+  {% if breadcrumbs and breadcrumbs | length > 1 %}
+    {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+    {{ govukBreadcrumbs({ items: breadcrumbs }) }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-width-container">
+    <main class="govuk-main-wrapper" id="main-content" role="main">
+      {% block pageContent %}{% endblock %}
+    </main>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module">
+    import { initAll } from '/govuk-frontend/govuk/govuk-frontend.min.js'
+    initAll()
+  </script>
+{% endblock %}

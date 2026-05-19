@@ -1,0 +1,60 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+
+  <h1 class="govuk-heading-xl">
+    Case {{ case.caseNumber }}
+    <strong class="govuk-tag {{ case.status | statusTagClass }} govuk-!-margin-left-3" style="vertical-align: middle;">
+      {{ case.status | formatStatus }}
+    </strong>
+  </h1>
+
+  {{ govukSummaryList({
+    rows: [
+      {
+        key: { text: "Case number" },
+        value: { text: case.caseNumber }
+      },
+      {
+        key: { text: "Title" },
+        value: { text: case.title }
+      },
+      {
+        key: { text: "Type" },
+        value: { text: case.caseType | formatCaseType }
+      },
+      {
+        key: { text: "Status" },
+        value: { html: '<strong class="govuk-tag ' + (case.status | statusTagClass) + '">' + (case.status | formatStatus) + '</strong>' }
+      },
+      {
+        key: { text: "Description" },
+        value: { text: case.description if case.description else "No description provided" }
+      },
+      {
+        key: { text: "Client" },
+        value: { text: case.clientName if case.clientName else "No client assigned" }
+      },
+      {
+        key: { text: "Date opened" },
+        value: { text: case.openedDate | formatDate }
+      },
+      {
+        key: { text: "Date closed" },
+        value: { text: case.closedDate | formatDate if case.closedDate else "—" }
+      }
+    ]
+  }) }}
+
+  <div class="govuk-button-group govuk-!-margin-top-6">
+    {% if case.status !== "CLOSED" and case.status !== "DISMISSED" %}
+      {{ govukButton({
+        text: "Update status",
+        href: "/cases/" + case.id + "/status"
+      }) }}
+    {% endif %}
+    <a class="govuk-link" href="/cases">Back to all cases</a>
+  </div>
+{% endblock %}

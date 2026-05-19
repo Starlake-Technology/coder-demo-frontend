@@ -1,0 +1,100 @@
+{% extends "layout.njk" %}
+
+{% block pageContent %}
+  {% from "govuk/components/button/macro.njk" import govukButton %}
+  {% from "govuk/components/select/macro.njk" import govukSelect %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">Cases</h1>
+    </div>
+    <div class="govuk-grid-column-one-third govuk-!-text-align-right">
+      {{ govukButton({
+        text: "Add new case",
+        href: "/cases/new",
+        classes: "govuk-!-margin-bottom-0"
+      }) }}
+    </div>
+  </div>
+
+  <form method="get" action="/cases" class="govuk-!-margin-bottom-6">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-quarter">
+        {{ govukSelect({
+          id: "status",
+          name: "status",
+          label: { text: "Filter by status" },
+          items: [
+            { value: "", text: "All statuses", selected: selectedStatus === "" },
+            { value: "OPEN", text: "Open", selected: selectedStatus === "OPEN" },
+            { value: "IN_PROGRESS", text: "In progress", selected: selectedStatus === "IN_PROGRESS" },
+            { value: "CLOSED", text: "Closed", selected: selectedStatus === "CLOSED" },
+            { value: "DISMISSED", text: "Dismissed", selected: selectedStatus === "DISMISSED" }
+          ]
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-quarter">
+        {{ govukSelect({
+          id: "caseType",
+          name: "caseType",
+          label: { text: "Filter by type" },
+          items: [
+            { value: "", text: "All types", selected: selectedCaseType === "" },
+            { value: "CRIMINAL", text: "Criminal", selected: selectedCaseType === "CRIMINAL" },
+            { value: "CIVIL", text: "Civil", selected: selectedCaseType === "CIVIL" },
+            { value: "FAMILY", text: "Family", selected: selectedCaseType === "FAMILY" },
+            { value: "CORPORATE", text: "Corporate", selected: selectedCaseType === "CORPORATE" },
+            { value: "EMPLOYMENT", text: "Employment", selected: selectedCaseType === "EMPLOYMENT" }
+          ]
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-quarter" style="padding-top: 36px;">
+        {{ govukButton({
+          text: "Apply filters",
+          classes: "govuk-button--secondary"
+        }) }}
+        {% if selectedStatus or selectedCaseType %}
+          <a class="govuk-link govuk-!-margin-left-3" href="/cases">Clear</a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+
+  {% if cases | length === 0 %}
+    <p class="govuk-body">No cases found{% if selectedStatus or selectedCaseType %} matching the selected filters{% endif %}.</p>
+  {% else %}
+    <p class="govuk-body govuk-!-color-secondary">Showing {{ cases | length }} case{{ "s" if cases | length !== 1 }}</p>
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Case number</th>
+          <th scope="col" class="govuk-table__header">Title</th>
+          <th scope="col" class="govuk-table__header">Type</th>
+          <th scope="col" class="govuk-table__header">Status</th>
+          <th scope="col" class="govuk-table__header">Client</th>
+          <th scope="col" class="govuk-table__header">Opened</th>
+          <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Actions</span></th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        {% for case in cases %}
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/cases/{{ case.id }}">{{ case.caseNumber }}</a>
+          </td>
+          <td class="govuk-table__cell">{{ case.title }}</td>
+          <td class="govuk-table__cell">{{ case.caseType | formatCaseType }}</td>
+          <td class="govuk-table__cell">
+            <strong class="govuk-tag {{ case.status | statusTagClass }}">{{ case.status | formatStatus }}</strong>
+          </td>
+          <td class="govuk-table__cell">{{ case.clientName or "—" }}</td>
+          <td class="govuk-table__cell">{{ case.openedDate | formatDate }}</td>
+          <td class="govuk-table__cell">
+            <a class="govuk-link" href="/cases/{{ case.id }}">View<span class="govuk-visually-hidden"> case {{ case.caseNumber }}</span></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}
